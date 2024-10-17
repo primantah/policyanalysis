@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            grid-gap: 10px;
+        }
+        .grid-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 18px;
+            text-align: center;
+        }
+        .exists {
+            color: green;
+            font-weight: bold;
+        }
+        .not-exists {
+            color: red;
+            font-weight: bold;
+        }
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+        }
+        a:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Search Results</h1>
+
+        <div class="grid">
+            {% for word, status in results %}
+                <div class="grid-item">
+                    <strong>{{ word }}:</strong> 
+                    <span class="{{ 'exists' if status == 'exists' else 'not-exists' }}">{{ status }}</span>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <a href="/">Go back</a>
+    </div>
+</body>
+</html>
