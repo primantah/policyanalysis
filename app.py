@@ -1,6 +1,6 @@
-from flask import Flask, request, render_template, redirect, url_for # type: ignore
+from flask import Flask, request, render_template, redirect, url_for
 import os
-import pdfplumber # type: ignore
+import pdfplumber
 import re
 
 app = Flask(__name__)
@@ -106,4 +106,4 @@ def upload_file():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
