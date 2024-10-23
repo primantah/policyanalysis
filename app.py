@@ -20,36 +20,34 @@ def allowed_file(filename):
 def read_text_from_file(file_path, first_page_in_pdf):
     # Check file extension
     _, file_extension = os.path.splitext(file_path)
-    
+
     if file_extension.lower() == '.pdf':
         try:
             with pdfplumber.open(file_path) as pdf:
                 text_by_page = {}
                 full_text = ""
                 page_offset = first_page_in_pdf - 1  # Adjust the page number according to the document
-                
-                for i, page in enumerate(pdf.pages, start=1):
-                    # Extract text separately for left and right columns
-                    left_text = page.within_bbox((0, 0, page.width / 2, page.height)).extract_text()
-                    right_text = page.within_bbox((page.width / 2, 0, page.width, page.height)).extract_text()
 
+                for i, page in enumerate(pdf.pages, start=1):
                     combined_text = ""
-                    if left_text:
-                        combined_text += left_text + "\n"
-                    if right_text:
-                        combined_text += right_text + "\n"
+
+                    # Extract text from the entire page
+                    combined_text = page.extract_text()
+
+                    # If no text was extracted, try a fallback extraction
+                    if not combined_text:
+                        combined_text = "No text found on this page."
 
                     if combined_text:
                         adjusted_page_num = i - page_offset
-                        # Ensure the adjusted page number is not negative
-                        if adjusted_page_num > 0:
-                            text_by_page[adjusted_page_num] = combined_text
-                            full_text += f"Page {adjusted_page_num}:\n{combined_text}\n\n"
+                        # Store the combined text using the adjusted page number
+                        text_by_page[adjusted_page_num] = combined_text
+                        full_text += f"Page {adjusted_page_num}:\n{combined_text}\n\n"
 
             return {"full_text": full_text.strip(), "pages": text_by_page}
         except Exception as e:
             return {"full_text": f"Error reading PDF: {str(e)}", "pages": []}
-    
+
     return {"full_text": "Unsupported file type", "pages": []}
 
 def check_words_in_text(txt_data, words_input, first_page_in_pdf):
@@ -61,26 +59,22 @@ def check_words_in_text(txt_data, words_input, first_page_in_pdf):
 
     # Check if each word exists in the text and on which page and the sentence
     results = {}
+
     for word in words_input.split(","):
         word = word.strip()
         word_info = {"exists": False, "pages": [], "sentences": {}}
 
         # Check in full text if the word exists
-        if word.isupper():
-            word_exists = any(w.upper() == word for w in words_in_text)  # Exact match, case-insensitive
-        else:
-            word_exists = any(w.lower().startswith(word.lower()) for w in words_in_text)  # Partial match
+        word_exists = any(word.lower() in w.lower() for w in words_in_text)
 
         if word_exists:
             word_info["exists"] = True
 
-            # Now check which pages and sentences contain the word
+            # Check which pages and sentences contain the word
             for page_num, page_text in pages.items():
                 page_words = re.findall(r'\b\w+\b', page_text)
-                if word.isupper():
-                    page_word_exists = any(w.upper() == word for w in page_words)
-                else:
-                    page_word_exists = any(w.lower().startswith(word.lower()) for w in page_words)
+
+                page_word_exists = any(word.lower() in w.lower() for w in page_words)
 
                 if page_word_exists:
                     word_info["pages"].append(page_num)
@@ -113,8 +107,8 @@ def upload_file():
         first_page_in_pdf = request.form.get('first_page', '')
 
         # Ensure first_page is a valid integer
-        if not first_page_in_pdf.isdigit():
-            return "Please enter a valid page number for the first page."
+        # if not first_page_in_pdf.isdigit():
+        #    return "Please enter a valid page number for the first page."
 
         first_page_in_pdf = int(first_page_in_pdf)
 
