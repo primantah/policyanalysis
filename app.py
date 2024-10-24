@@ -17,13 +17,13 @@ if not os.path.exists(app.config['UPLOAD_FOLDER']):
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def read_text_from_file(file_path, first_page_in_pdf):
+def read_text_from_file(file, first_page_in_pdf):
     # Check file extension
-    _, file_extension = os.path.splitext(file_path)
+    file_extension = file.filename.rsplit('.', 1)[1].lower()
 
-    if file_extension.lower() == '.pdf':
+    if file_extension == 'pdf':
         try:
-            with pdfplumber.open(file_path) as pdf:
+            with pdfplumber.open(file) as pdf:
                 text_by_page = {}
                 full_text = ""
                 page_offset = first_page_in_pdf - 1  # Adjust the page number according to the document
@@ -94,7 +94,6 @@ def check_words_in_text(txt_data, words_input, first_page_in_pdf):
     sorted_results = sorted(results.items(), key=lambda item: item[1]["exists"], reverse=True)
     return sorted_results
 
-
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':  # Handle POST request
@@ -107,16 +106,11 @@ def upload_file():
         first_page_in_pdf = request.form.get('first_page', '')
 
         # Ensure first_page is a valid integer
-        # if not first_page_in_pdf.isdigit():
-        #    return "Please enter a valid page number for the first page."
-
         first_page_in_pdf = int(first_page_in_pdf)
 
         if file and allowed_file(file.filename):
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
-            file.save(file_path)
-            
-            txt_content = read_text_from_file(file_path, first_page_in_pdf)
+            # Process the uploaded file directly without saving it
+            txt_content = read_text_from_file(file, first_page_in_pdf)
 
             if not txt_content['full_text']:
                 return "The uploaded file is empty. Please upload a valid file."
@@ -130,6 +124,7 @@ def upload_file():
     
     # If it's a GET request, show the upload form
     return render_template('upload.html')  # Render upload form on GET request
+
 
 if __name__ == '__main__':
     app.run()
