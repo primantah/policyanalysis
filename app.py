@@ -4,15 +4,10 @@ import pdfplumber
 import re
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = 'uploads/'
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB max file size
 
 ALLOWED_EXTENSIONS = {'txt', 'pdf'}
-
-# Ensure the upload folder exists
-if not os.path.exists(app.config['UPLOAD_FOLDER']):
-    os.makedirs(app.config['UPLOAD_FOLDER'])
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
