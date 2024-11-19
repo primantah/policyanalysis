@@ -1,6 +1,7 @@
 from flask import Flask, request, render_template, redirect, url_for
 import pdfplumber
 import re
+import unicodedata
 
 app = Flask(__name__)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
@@ -32,27 +33,44 @@ def read_text_from_file(file):
 
     return {"full_text": "Unsupported file type", "pages": []}
 
+# Normalize text for Unicode consistency
+def normalize_text(text):
+    return unicodedata.normalize('NFKC', text)
+
+# Remove diacritical marks from Arabic text
+def remove_diacritics(text):
+    return ''.join(c for c in unicodedata.normalize('NFD', text) if unicodedata.category(c) != 'Mn')
+
 def check_words_in_text(txt_data, words_input):
     full_text = txt_data['full_text']
     pages = txt_data['pages']
-    words_in_text = re.findall(r'\b\w+\b', full_text)
-    results = {}
 
-    for word in words_input.split(","):
-        word = word.strip()
+    # Match both Arabic and Latin alphabet words
+    words_in_text = re.findall(r'[\w\u0600-\u06FF]+', full_text)
+
+    # Split input on both commas and slashes, normalize, and remove empty strings
+    keywords = re.split(r'[,/]', words_input)
+    keywords = [normalize_text(word.strip()) for word in keywords if word.strip()]  # Normalize input
+
+    results = {}
+    for word in keywords:
         word_info = {"exists": False, "pages": []}
 
-        word_exists = any(word.lower() in w.lower() for w in words_in_text)
+        # Remove diacritics for comparison
+        word_clean = remove_diacritics(word)
+        word_exists = any(word_clean in remove_diacritics(w) for w in words_in_text)
 
         if word_exists:
             word_info["exists"] = True
             for page_num, page_text in pages.items():
-                page_words = re.findall(r'\b\w+\b', page_text)
-                if any(word.lower() in w.lower() for w in page_words):
+                # Match both Arabic and Latin words in the current page
+                page_words = re.findall(r'[\w\u0600-\u06FF]+', page_text)
+                if any(word_clean in remove_diacritics(w) for w in page_words):
                     word_info["pages"].append(page_num)
 
         results[word] = word_info
 
+    # Sort results so that existing words come first
     sorted_results = sorted(results.items(), key=lambda item: item[1]["exists"], reverse=True)
     return sorted_results
 
