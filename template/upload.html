@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload File and Search for Keywords</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .container {
+            width: 90%;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .copy-box {
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .copy-box textarea {
+            width: 100%;
+            height: 60px;
+            border: none;
+            background-color: transparent;
+            resize: none;
+            font-size: 14px;
+            padding: 10px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        input, textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0 20px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        input, textarea {
+            border: 1px solid #ccc;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        /* Flexbox layout for keywords and search mechanism */
+        .keywords-search {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start; /* Aligns items to the top */
+            gap: 20px;
+        }
+        .keywords-search .form-group {
+            flex: 0.5; /* Adjusts width for the text box */
+        }
+        .keywords-search .radio-group {
+            flex: 0.4;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-start; /* Left-aligns the radio buttons */
+        }
+        .radio-group label {
+            display: inline-flex;
+            align-items: center; /* Ensures vertical alignment */
+            gap: 10px; /* Adds space between the radio button and text */
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 10px; /* Adds consistent spacing between options */
+        }
+        .radio-group input[type="radio"] {
+            margin: 0; /* Removes default margin around radio buttons */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Upload File and Search for Keywords</h1>
+
+        <!-- Box with copy and paste string -->
+        <div class="copy-box">
+            <p><strong>Suggested Key Words:</strong></p>
+            <p>(please copy-paste this to the search box)</p>
+            <textarea readonly>AIDS, acute, allerg, anxi, asthma, bacteria, bicycle, bike, birth, borne, burn, cancer, cardio, casualt, Chagas, Chikungunya, child, cholera, chronic, clean, clinic, cobenefit, co-benefit, communicable, conflict, COPD, corona, Covid, cramp, crush, cycling, DALY, dead, death, dengue, depression, diabet, diarrh, died, diet, disability, disease, displace, doctor, drink, drown, Dehydration, emergenc, endemic, epidemic, epidemiolog, exercise, exhaustion, existen, expos, gastro, handwash, harm, health, heart, HIV, hospital, humanit, hung, hygiene, illness, immune, infect, influenza, inhal, injur, kidney, killed, leishmaniasis, life, lives, lung, Lyme, malaria, measles, medic, mental, migra, MoH, morbid, mortal, mosquito, nourish, nurse, nutri, obes, onchocerciasis, paediatric, pandemic, pathogen, pediatric, pollen, pollut, potable, pregnan, preterm, pre-term, protein, psych, pulm, QALY, rash, refugee, renal, reproduc, respiratory, safe, sanita, SARS, schistosomiasis, SDG, sex, SLCP, smoke, SRHR, stress, stroke, stunt, surviv, symptom, sydemic, tick, trauma, trypanosom, typhus, trachoma, UHC, vector, violen, viral, virus, walk, WASH, welfare, wellbeing, well-being, YLL, Zika, zoon</textarea>
+        </div>
+
+        <!-- Form for file upload and keyword input -->
+        <form action="/" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="file">Select file (Max size: 16MB):</label>
+                <input type="file" name="file" id="file" required>
+                <small style="color: red;">Only PDF files allowed. Maximum file size: 16MB.</small>
+            </div>            
+
+            <!-- Flex container for Enter Keywords and Search Mechanism -->
+            <div class="keywords-search">
+                <!-- Enter Keywords -->
+                <div class="form-group">
+                    <label for="keywords">Enter keywords (comma-separated):</label>
+                    <textarea name="keywords" id="keywords" rows="5" cols="40" required autofocus></textarea>
+                </div>
+
+                <!-- Search Mechanism -->
+            <div class="radio-group">
+                <label><strong>Choose Search Mechanism:</strong></label>
+                <label>
+                    <input type="radio" name="search_mode" value="regular" id="regular" checked>
+                    Regular Search (No Contextualization)
+                </label>
+                <label>
+                    <input type="radio" name="search_mode" value="smart" id="smart">
+                    Smart Search (Contextualization)
+                </label>
+                </div>
+            </div>
+
+            <button type="submit">Search</button>
+        </form>
+    </div>
+
+    <script>
+    document.getElementById("file").addEventListener("change", function() {
+        let file = this.files[0];
+        if (file) {
+            let fileType = file.name.split('.').pop().toLowerCase();
+            let allowedTypes = ["pdf"];
+            if (!allowedTypes.includes(fileType)) {
+                alert("Error: Only PDF files are allowed.");
+                this.value = "";
+            } else if (file.size > 16 * 1024 * 1024) {
+                alert("Error: File exceeds the 16MB limit.");
+                this.value = "";
+            }
+        }
+    });
+    </script>
+
+</body>
+</html>
