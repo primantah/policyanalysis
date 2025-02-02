@@ -1,6 +1,6 @@
 # AI-Powered PDF Keyword Search & Classification Tool
 
-
+![App Screenshot]([images/screenshot.png](https://github.com/primantah/policyanalysis/blob/master/images/Screenshot%202025-02-02%20132530.png))
 
 ## Overview
 This project is a **Flask-based web application** that allows users to upload PDF documents and search for specific keywords. The tool provides two search modes:
@@ -94,5 +94,4 @@ MIT License. Feel free to use and improve!
 
 ---
 ## Contact
-For inquiries, contact **[Your Name]** at **your.email@example.com**.
-
+For inquiries, contact **Primanta** at **primanta.b@columbia.edu**.
