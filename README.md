@@ -5,7 +5,7 @@ This project is a **Flask-based web application** that allows users to upload PD
 1. **Regular Search** – Finds and displays exact keyword matches.
 2. **Smart Search** – Uses **OpenAI's GPT API** to determine whether the keyword appears in a context relevant to **health or climate**.
 
-![App Screenshot](images/screenshot1.png)
+![App Screenshot](images/screenshotawal.png)
 ![App Screenshot](images/screenshot2.png)
 ![App Screenshot](images/screenshot3.png)
 
